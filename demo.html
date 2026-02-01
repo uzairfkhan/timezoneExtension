@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo - Timezone Converter</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Email Style */
+    .email {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .email-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .email-subject {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+
+    .email-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .email-sender {
+      flex: 1;
+    }
+
+    .sender-name {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 14px;
+    }
+
+    .sender-email {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .email-date {
+      color: #888;
+      font-size: 13px;
+    }
+
+    .email-body {
+      padding: 24px;
+      line-height: 1.7;
+      color: #333;
+      font-size: 15px;
+    }
+
+    .email-body p {
+      margin-bottom: 16px;
+    }
+
+    .time-highlight {
+      background: #fff3cd;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    /* Chat Style */
+    .chat {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      background: #075e54;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #25d366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .chat-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .chat-status {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .chat-body {
+      padding: 20px;
+      background: #e5ddd5;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4ccc4' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      min-height: 300px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .message.received {
+      background: white;
+      border-top-left-radius: 0;
+      margin-right: auto;
+    }
+
+    .message.sent {
+      background: #dcf8c6;
+      border-top-right-radius: 0;
+      margin-left: auto;
+    }
+
+    .section-label {
+      text-align: center;
+      color: #888;
+      font-size: 13px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Slack Style */
+    .slack {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-top: 30px;
+    }
+
+    .slack-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slack-channel {
+      font-weight: 600;
+      font-size: 15px;
+      color: #1a1a1a;
+    }
+
+    .slack-body {
+      padding: 16px 20px;
+    }
+
+    .slack-message {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .slack-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .slack-avatar.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .slack-avatar.pink { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .slack-avatar.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .slack-avatar.orange { background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); }
+
+    .slack-content {
+      flex: 1;
+    }
+
+    .slack-user {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .slack-username {
+      font-weight: 700;
+      font-size: 14px;
+      color: #1a1a1a;
+    }
+
+    .slack-timestamp {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .slack-text {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Email Demo -->
+    <p class="section-label">Email</p>
+    <div class="email">
+      <div class="email-header">
+        <div class="email-subject">Team Sync - Q1 Planning</div>
+        <div class="email-meta">
+          <div class="avatar">SK</div>
+          <div class="email-sender">
+            <div class="sender-name">Sarah Kim</div>
+            <div class="sender-email">sarah.kim@company.com</div>
+          </div>
+          <div class="email-date">Today, 9:42 AM</div>
+        </div>
+      </div>
+      <div class="email-body">
+        <p>Hi team,</p>
+        <p>Let's schedule our Q1 planning session. I'm thinking we do it this Thursday.</p>
+        <p>I'm available from <span class="time-highlight">9:00 AM to 11:30 AM Pacific</span> or <span class="time-highlight">2:00 PM - 4:00 PM PST</span>.</p>
+        <p>For our colleagues in London, that would be <span class="time-highlight">5:00 PM GMT</span> onwards. Tokyo team - I know <span class="time-highlight">6:00A JST</span> is early, but can you make it work?</p>
+        <p>Let me know what works best. The meeting will be <span class="time-highlight">90 minutes</span> long.</p>
+        <p>Best,<br>Sarah</p>
+      </div>
+    </div>
+
+    <!-- Chat Demo -->
+    <p class="section-label">Chat</p>
+    <div class="chat">
+      <div class="chat-header">
+        <div class="chat-avatar">MJ</div>
+        <div>
+          <div class="chat-name">Mike Johnson</div>
+          <div class="chat-status">online</div>
+        </div>
+      </div>
+      <div class="chat-body">
+        <div class="message received">
+          Hey! Can we hop on a call today?
+          <div class="message-time">10:23 AM</div>
+        </div>
+        <div class="message sent">
+          Sure! When works for you?
+          <div class="message-time">10:25 AM</div>
+        </div>
+        <div class="message received">
+          How about <span class="time-highlight">3:30 PM Eastern</span>?
+          <div class="message-time">10:26 AM</div>
+        </div>
+        <div class="message received">
+          Or <span class="time-highlight">4:00P ET</span> if that's better
+          <div class="message-time">10:26 AM</div>
+        </div>
+        <div class="message sent">
+          Let me check... I'm in Pacific time
+          <div class="message-time">10:28 AM</div>
+        </div>
+        <div class="message received">
+          No worries! I can also do <span class="time-highlight">15:00 UTC</span>
+          <div class="message-time">10:30 AM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slack Demo -->
+    <p class="section-label" style="margin-top: 30px;">Slack</p>
+    <div class="slack">
+      <div class="slack-header">
+        <span style="color: #888">#</span>
+        <span class="slack-channel">engineering-global</span>
+      </div>
+      <div class="slack-body">
+        <div class="slack-message">
+          <div class="slack-avatar blue"></div>
+          <div class="slack-content">
+            <div class="slack-user">
+              <span class="slack-username">Alex Chen</span>
+              <span class="slack-timestamp">11:45 AM</span>
+            </div>
+            <div class="slack-text">Reminder: deployment window opens at <span class="time-highlight">10:00 PM Pacific</span> tonight</div>
+          </div>
+        </div>
+        <div class="slack-message">
+          <div class="slack-avatar pink"></div>
+          <div class="slack-content">
+            <div class="slack-user">
+              <span class="slack-username">Emma Wilson</span>
+              <span class="slack-timestamp">11:47 AM</span>
+            </div>
+            <div class="slack-text">For the Sydney team that's <span class="time-highlight">5:00P AEDT</span> tomorrow right?</div>
+          </div>
+        </div>
+        <div class="slack-message">
+          <div class="slack-avatar green"></div>
+          <div class="slack-content">
+            <div class="slack-user">
+              <span class="slack-username">Raj Patel</span>
+              <span class="slack-timestamp">11:52 AM</span>
+            </div>
+            <div class="slack-text">I'll be online <span class="time-highlight">8:30A to 12:00P India</span> to help with monitoring</div>
+          </div>
+        </div>
+        <div class="slack-message">
+          <div class="slack-avatar orange"></div>
+          <div class="slack-content">
+            <div class="slack-user">
+              <span class="slack-username">Lisa Tanaka</span>
+              <span class="slack-timestamp">11:58 AM</span>
+            </div>
+            <div class="slack-text">Berlin team standup moved to <span class="time-highlight">14:00 CET</span> - hope that works for everyone!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

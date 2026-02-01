@@ -51,44 +51,44 @@ export function App() {
   };
 
   return (
-    <div className="min-h-[420px] bg-gradient-to-b from-white to-gray-50">
+    <div className="bg-gradient-to-b from-white to-gray-50">
       {/* Header */}
-      <div className="px-6 pt-6 pb-4">
-        <div className="flex items-center justify-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-sm">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="px-5 pt-5 pb-3">
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-sm">
+            <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="9" strokeWidth="2" />
               <path strokeLinecap="round" strokeWidth="2" d="M12 7v5l3 3" />
             </svg>
           </div>
-          <h1 className="text-lg font-semibold text-gray-800 tracking-tight">
+          <h1 className="text-base font-semibold text-gray-800 tracking-tight">
             Timezone Converter
           </h1>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-5 pb-5 space-y-4">
+      <div className="px-4 pb-4 space-y-3">
         <TimeInput
           value={inputTime}
           onChange={setInputTime}
           placeholder="e.g., 3:00 PM or 8:00A Pacific"
         />
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           <TimezoneSelect
             label="From"
             value={sourceTimezone}
             onChange={setSourceTimezone}
           />
 
-          <div className="flex justify-center -my-1">
+          <div className="flex justify-center">
             <button
               onClick={handleSwap}
               className="btn-icon"
               title="Swap timezones"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -111,12 +111,9 @@ export function App() {
           timeFormat={timeFormat}
           onFormatChange={handleFormatChange}
         />
-      </div>
 
-      {/* Footer */}
-      <div className="px-6 pb-4">
-        <p className="text-xs text-gray-400 text-center">
-          Tip: Include timezone in input — "3:00 PM EST"
+        <p className="text-xs text-gray-400 text-center pt-1">
+          Tip: Include timezone — "3:00 PM EST"
         </p>
       </div>
     </div>

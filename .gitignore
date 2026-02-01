@@ -24,3 +24,5 @@ npm-debug.log*
 
 # Uncomment if using auto-generated icons from icon.png source
 # public/icons/*.png
+/chromeScreenshots
+/.claude

@@ -10,13 +10,32 @@ interface ConvertedTimeProps {
 export function ConvertedTime({ result, timeFormat, onFormatChange }: ConvertedTimeProps) {
   const [copied, setCopied] = useState(false);
 
-  const convertedTime = timeFormat === '12h' ? result?.convertedTime12 : result?.convertedTime24;
-  const formattedOutput = timeFormat === '12h' ? result?.formattedOutput12 : result?.formattedOutput24;
+  // Get the appropriate display values based on format and whether it's a range
+  const getDisplayValues = () => {
+    if (!result || !result.success) return { main: '', sub: '' };
+
+    if (result.isRange) {
+      const start = timeFormat === '12h' ? result.startTime12 : result.startTime24;
+      const end = timeFormat === '12h' ? result.endTime12 : result.endTime24;
+      const full = timeFormat === '12h' ? result.rangeOutput12 : result.rangeOutput24;
+      return {
+        main: `${start} – ${end}`,
+        sub: full || '',
+      };
+    }
+
+    return {
+      main: timeFormat === '12h' ? result.convertedTime12 : result.convertedTime24,
+      sub: timeFormat === '12h' ? result.formattedOutput12 : result.formattedOutput24,
+    };
+  };
+
+  const { main, sub } = getDisplayValues();
 
   const handleCopy = async () => {
-    if (formattedOutput) {
+    if (sub) {
       try {
-        await navigator.clipboard.writeText(formattedOutput);
+        await navigator.clipboard.writeText(sub);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
@@ -31,8 +50,8 @@ export function ConvertedTime({ result, timeFormat, onFormatChange }: ConvertedT
 
   if (!result) {
     return (
-      <div className="result-card result-card-empty mt-4">
-        <p className="text-sm text-gray-400 text-center py-2">
+      <div className="result-card result-card-empty mt-3">
+        <p className="text-sm text-gray-400 text-center">
           Enter a time to convert
         </p>
       </div>
@@ -41,24 +60,24 @@ export function ConvertedTime({ result, timeFormat, onFormatChange }: ConvertedT
 
   if (!result.success) {
     return (
-      <div className="result-card result-card-error mt-4 animate-fade-in">
+      <div className="result-card result-card-error mt-3 animate-fade-in">
         <p className="text-sm text-red-600">{result.error}</p>
       </div>
     );
   }
 
   return (
-    <div className="result-card result-card-success mt-4 animate-fade-in">
-      <div className="flex items-start justify-between gap-3">
+    <div className="result-card result-card-success mt-3 animate-fade-in">
+      <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-3xl font-semibold text-emerald-800 tracking-tight">
-            {convertedTime}
+          <p className={`font-semibold text-emerald-800 tracking-tight ${result.isRange ? 'text-xl' : 'text-2xl'}`}>
+            {main}
           </p>
-          <p className="text-sm text-emerald-600/80 mt-1.5 truncate">
-            {formattedOutput}
+          <p className="text-xs text-emerald-600/80 mt-1 truncate">
+            {sub}
           </p>
         </div>
-        <div className="flex items-center gap-1 pt-1">
+        <div className="flex items-center gap-0.5">
           {/* Format Toggle */}
           <button
             onClick={toggleFormat}

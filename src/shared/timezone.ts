@@ -111,8 +111,40 @@ export function formatTime(
 }
 
 /**
+ * Detects if the input is a time range and splits it
+ * Supports: "to", "-", "–", "—", "until", "till"
+ */
+function parseTimeRange(input: string): { isRange: boolean; start: string; end: string; timezone: string | null } {
+  // First extract timezone from the end
+  const { timeString, timezone } = extractTimezone(input);
+
+  // Range separators (order matters - check longer ones first)
+  const separators = [' until ', ' till ', ' to ', ' – ', ' — ', ' - ', '–', '—', '-'];
+
+  for (const sep of separators) {
+    const parts = timeString.split(new RegExp(sep, 'i'));
+    if (parts.length === 2) {
+      let start = parts[0].trim();
+      let end = parts[1].trim();
+
+      // If end time doesn't have AM/PM but start does, inherit it
+      // e.g., "9:00 AM to 11:30" -> "9:00 AM" and "11:30 AM"
+      const ampmMatch = start.match(/(AM|PM|A|P)$/i);
+      if (ampmMatch && !/(AM|PM|A|P)$/i.test(end)) {
+        end = end + ' ' + ampmMatch[1];
+      }
+
+      return { isRange: true, start, end, timezone };
+    }
+  }
+
+  return { isRange: false, start: timeString, end: '', timezone };
+}
+
+/**
  * Main conversion function that handles the full conversion flow
  * Returns both 12h and 24h formats for flexibility
+ * Supports single times and time ranges
  */
 export function convertTimeString(
   inputTime: string,
@@ -120,6 +152,54 @@ export function convertTimeString(
   targetTimezone: string
 ): ConversionResult {
   try {
+    // Check if it's a time range
+    const rangeInfo = parseTimeRange(inputTime);
+
+    if (rangeInfo.isRange) {
+      // Parse both times
+      const startInput = rangeInfo.timezone
+        ? `${rangeInfo.start} ${Object.keys(TIMEZONE_ABBREVIATIONS).find(k => TIMEZONE_ABBREVIATIONS[k] === rangeInfo.timezone) || ''}`
+        : rangeInfo.start;
+      const endInput = rangeInfo.timezone
+        ? `${rangeInfo.end} ${Object.keys(TIMEZONE_ABBREVIATIONS).find(k => TIMEZONE_ABBREVIATIONS[k] === rangeInfo.timezone) || ''}`
+        : rangeInfo.end;
+
+      const { dateTime: startDateTime, detectedTimezone: startTz } = parseTimeInput(startInput, sourceTimezone);
+      const { dateTime: endDateTime } = parseTimeInput(endInput, sourceTimezone);
+
+      if (!startDateTime || !endDateTime) {
+        return {
+          success: false,
+          error: 'Could not parse time range. Try "9:00 AM to 11:30 AM Pacific"',
+        };
+      }
+
+      const actualSource = rangeInfo.timezone || startTz || sourceTimezone;
+      const startConverted = startDateTime.setZone(actualSource).setZone(targetTimezone);
+      const endConverted = endDateTime.setZone(actualSource).setZone(targetTimezone);
+
+      if (!startConverted.isValid || !endConverted.isValid) {
+        return {
+          success: false,
+          error: 'Invalid timezone conversion',
+        };
+      }
+
+      const tzAbbrev = startConverted.toFormat('ZZZZ');
+
+      return {
+        success: true,
+        isRange: true,
+        startTime12: startConverted.toFormat('h:mm a'),
+        startTime24: startConverted.toFormat('HH:mm'),
+        endTime12: endConverted.toFormat('h:mm a'),
+        endTime24: endConverted.toFormat('HH:mm'),
+        rangeOutput12: `${startConverted.toFormat('h:mm a')} to ${endConverted.toFormat('h:mm a')} ${tzAbbrev}`,
+        rangeOutput24: `${startConverted.toFormat('HH:mm')} to ${endConverted.toFormat('HH:mm')} ${tzAbbrev}`,
+      };
+    }
+
+    // Single time parsing
     const { dateTime, detectedTimezone } = parseTimeInput(inputTime, sourceTimezone);
 
     if (!dateTime) {
@@ -143,6 +223,7 @@ export function convertTimeString(
 
     return {
       success: true,
+      isRange: false,
       convertedTime12: converted.toFormat('h:mm a'),
       convertedTime24: converted.toFormat('HH:mm'),
       formattedOutput12: converted.toFormat('h:mm a ZZZZ'),
