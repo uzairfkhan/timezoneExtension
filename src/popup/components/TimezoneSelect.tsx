@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'preact/hooks';
+import { useState, useMemo, useRef, useEffect } from 'preact/hooks';
 import { COMMON_TIMEZONES } from '../../shared/constants';
 
 interface TimezoneSelectProps {
@@ -10,6 +10,8 @@ interface TimezoneSelectProps {
 export function TimezoneSelect({ label, value, onChange }: TimezoneSelectProps) {
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const filteredTimezones = useMemo(() => {
     if (!search.trim()) return COMMON_TIMEZONES;
@@ -30,63 +32,79 @@ export function TimezoneSelect({ label, value, onChange }: TimezoneSelectProps) 
     setSearch('');
   };
 
+  // Close on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+        setSearch('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Focus search when opened
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen]);
+
   return (
-    <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+    <div ref={containerRef} className="relative">
+      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
         {label}
       </label>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2 text-left bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="select-elegant relative pr-10"
       >
-        <span className="block truncate text-gray-900">{displayValue}</span>
-        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+        <span className="block truncate">{displayValue}</span>
+        <span className="absolute inset-y-0 right-0 flex items-center pr-3">
           <svg
-            className="w-4 h-4 text-gray-400"
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </span>
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
-          <div className="p-2 border-b border-gray-200">
+        <div className="dropdown-elegant">
+          <div className="p-2 border-b border-gray-100">
             <input
+              ref={searchInputRef}
               type="text"
               value={search}
               onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
               placeholder="Search timezones..."
-              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-              autoFocus
+              className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-300 focus:bg-white transition-all"
             />
           </div>
-          <ul className="overflow-y-auto max-h-48">
+          <ul className="overflow-y-auto max-h-48 py-1">
             {filteredTimezones.map((tz) => (
               <li key={tz.value}>
                 <button
                   type="button"
                   onClick={() => handleSelect(tz.value)}
-                  className={`w-full px-3 py-2 text-left text-sm hover:bg-blue-50 ${
-                    tz.value === value ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                  className={`w-full px-4 py-2.5 text-left transition-colors ${
+                    tz.value === value
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <span className="block font-medium">{tz.label}</span>
-                  <span className="block text-xs text-gray-500">{tz.offset}</span>
+                  <span className="block text-sm font-medium">{tz.label}</span>
+                  <span className="block text-xs text-gray-400 mt-0.5">{tz.offset}</span>
                 </button>
               </li>
             ))}
             {filteredTimezones.length === 0 && (
-              <li className="px-3 py-2 text-sm text-gray-500">No timezones found</li>
+              <li className="px-4 py-3 text-sm text-gray-400 text-center">No timezones found</li>
             )}
           </ul>
         </div>

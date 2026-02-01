@@ -11,7 +11,6 @@ export function App() {
   const [targetTimezone, setTargetTimezone] = useState(detectLocalTimezone());
   const [result, setResult] = useState<ConversionResult | null>(null);
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => {
-    // Load saved preference or default to 12h
     try {
       return (localStorage.getItem('timeFormat') as TimeFormat) || '12h';
     } catch {
@@ -19,7 +18,6 @@ export function App() {
     }
   });
 
-  // Save time format preference
   const handleFormatChange = (format: TimeFormat) => {
     setTimeFormat(format);
     try {
@@ -29,7 +27,6 @@ export function App() {
     }
   };
 
-  // Check for pre-filled time from context menu
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const selectedText = params.get('text');
@@ -38,7 +35,6 @@ export function App() {
     }
   }, []);
 
-  // Convert whenever inputs change
   useEffect(() => {
     if (inputTime.trim()) {
       const conversionResult = convertTimeString(inputTime, sourceTimezone, targetTimezone);
@@ -55,51 +51,60 @@ export function App() {
   };
 
   return (
-    <div className="p-4 bg-gray-50 min-h-[400px]">
-      <h1 className="text-lg font-semibold text-gray-800 mb-4 text-center">
-        Timezone Converter
-      </h1>
+    <div className="min-h-[420px] bg-gradient-to-b from-white to-gray-50">
+      {/* Header */}
+      <div className="px-6 pt-6 pb-4">
+        <div className="flex items-center justify-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-sm">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" strokeWidth="2" />
+              <path strokeLinecap="round" strokeWidth="2" d="M12 7v5l3 3" />
+            </svg>
+          </div>
+          <h1 className="text-lg font-semibold text-gray-800 tracking-tight">
+            Timezone Converter
+          </h1>
+        </div>
+      </div>
 
-      <div className="space-y-4">
+      {/* Main Content */}
+      <div className="px-5 pb-5 space-y-4">
         <TimeInput
           value={inputTime}
           onChange={setInputTime}
-          placeholder="Enter time (e.g., 3:00 PM)"
+          placeholder="e.g., 3:00 PM or 8:00A Pacific"
         />
 
-        <TimezoneSelect
-          label="From"
-          value={sourceTimezone}
-          onChange={setSourceTimezone}
-        />
+        <div className="space-y-3">
+          <TimezoneSelect
+            label="From"
+            value={sourceTimezone}
+            onChange={setSourceTimezone}
+          />
 
-        <div className="flex justify-center">
-          <button
-            onClick={handleSwap}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors"
-            title="Swap timezones"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="flex justify-center -my-1">
+            <button
+              onClick={handleSwap}
+              className="btn-icon"
+              title="Swap timezones"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-              />
-            </svg>
-          </button>
-        </div>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                />
+              </svg>
+            </button>
+          </div>
 
-        <TimezoneSelect
-          label="To"
-          value={targetTimezone}
-          onChange={setTargetTimezone}
-        />
+          <TimezoneSelect
+            label="To"
+            value={targetTimezone}
+            onChange={setTargetTimezone}
+          />
+        </div>
 
         <ConvertedTime
           result={result}
@@ -108,9 +113,12 @@ export function App() {
         />
       </div>
 
-      <p className="text-xs text-gray-400 text-center mt-4">
-        Tip: Include timezone in input (e.g., "3:00 PM EST")
-      </p>
+      {/* Footer */}
+      <div className="px-6 pb-4">
+        <p className="text-xs text-gray-400 text-center">
+          Tip: Include timezone in input — "3:00 PM EST"
+        </p>
+      </div>
     </div>
   );
 }

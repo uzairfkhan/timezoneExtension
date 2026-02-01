@@ -31,34 +31,38 @@ export function ConvertedTime({ result, timeFormat, onFormatChange }: ConvertedT
 
   if (!result) {
     return (
-      <div className="mt-4 p-4 bg-gray-100 rounded-lg text-center text-gray-500">
-        Enter a time to convert
+      <div className="result-card result-card-empty mt-4">
+        <p className="text-sm text-gray-400 text-center py-2">
+          Enter a time to convert
+        </p>
       </div>
     );
   }
 
   if (!result.success) {
     return (
-      <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <div className="result-card result-card-error mt-4 animate-fade-in">
         <p className="text-sm text-red-600">{result.error}</p>
       </div>
     );
   }
 
   return (
-    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-      <div className="flex items-start justify-between gap-2">
+    <div className="result-card result-card-success mt-4 animate-fade-in">
+      <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className="text-2xl font-bold text-green-800">
+          <p className="text-3xl font-semibold text-emerald-800 tracking-tight">
             {convertedTime}
           </p>
-          <p className="text-sm text-green-600 mt-1 truncate">{formattedOutput}</p>
+          <p className="text-sm text-emerald-600/80 mt-1.5 truncate">
+            {formattedOutput}
+          </p>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 pt-1">
           {/* Format Toggle */}
           <button
             onClick={toggleFormat}
-            className="px-2 py-1 text-xs font-medium text-green-600 hover:text-green-800 hover:bg-green-100 rounded transition-colors"
+            className="px-2.5 py-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100/50 rounded-lg transition-all"
             title={`Switch to ${timeFormat === '12h' ? '24-hour' : '12-hour'} format`}
           >
             {timeFormat === '12h' ? '24h' : '12h'}
@@ -66,7 +70,7 @@ export function ConvertedTime({ result, timeFormat, onFormatChange }: ConvertedT
           {/* Copy Button */}
           <button
             onClick={handleCopy}
-            className="p-2 text-green-600 hover:text-green-800 hover:bg-green-100 rounded-lg transition-colors"
+            className="p-2 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100/50 rounded-lg transition-all active:scale-95"
             title="Copy to clipboard"
           >
             {copied ? (
@@ -83,7 +87,7 @@ export function ConvertedTime({ result, timeFormat, onFormatChange }: ConvertedT
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                 />
               </svg>
